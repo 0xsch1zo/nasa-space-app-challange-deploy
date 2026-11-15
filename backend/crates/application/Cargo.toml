@@ -1,0 +1,16 @@
+[package]
+name = "application"
+edition.workspace = true
+version.workspace = true
+license.workspace = true
+
+# Application layer: use cases + ports. Depends only on the domain.
+[dependencies]
+domain.workspace = true
+async-trait.workspace = true
+chrono.workspace = true
+thiserror.workspace = true
+uuid.workspace = true
+
+[dev-dependencies]
+tokio.workspace = true

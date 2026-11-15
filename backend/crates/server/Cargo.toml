@@ -1,0 +1,22 @@
+[package]
+name = "server"
+edition.workspace = true
+version.workspace = true
+license.workspace = true
+
+# Composition root: the only crate that knows every adapter.
+[dependencies]
+domain.workspace = true
+application.workspace = true
+adapter-postgres.workspace = true
+adapter-auth.workspace = true
+adapter-http.workspace = true
+anyhow.workspace = true
+axum.workspace = true
+chrono.workspace = true
+rand.workspace = true
+rand_distr.workspace = true
+tokio.workspace = true
+tracing.workspace = true
+tracing-subscriber.workspace = true
+uuid = { workspace = true, features = ["v5"] }

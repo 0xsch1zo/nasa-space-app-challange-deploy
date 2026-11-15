@@ -1,0 +1,11 @@
+[package]
+name = "domain"
+edition.workspace = true
+version.workspace = true
+license.workspace = true
+
+# The domain crate must stay free of web, database and crypto dependencies.
+[dependencies]
+chrono.workspace = true
+thiserror.workspace = true
+uuid.workspace = true

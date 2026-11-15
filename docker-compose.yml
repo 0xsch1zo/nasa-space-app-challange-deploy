@@ -1,0 +1,49 @@
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: astro
+      POSTGRES_PASSWORD: astro
+      POSTGRES_DB: astro_health
+    ports: ["5432:5432"]
+    volumes: [pgdata:/var/lib/postgresql/data]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U astro -d astro_health"]
+      interval: 2s
+      timeout: 3s
+      retries: 30
+
+  # One-shot: runs migrations, creates per-metric partitions and loads demo
+  # data through the device-ingestion port. `--reset` regenerates the demo
+  # data on every start so its timeline always ends "now" (otherwise the
+  # overdue-measurement alerts would fire a few days after seeding).
+  # Remove `--reset` to keep data between restarts.
+  seed:
+    build: ./backend
+    command: ["seed", "--reset"]
+    environment: &backend-env
+      DATABASE_URL: postgres://astro:astro@db:5432/astro_health
+      JWT_SECRET: ${JWT_SECRET:-change-me-in-production-please}
+      JWT_TTL_MINUTES: "480"
+      RUST_LOG: info
+    depends_on:
+      db: { condition: service_healthy }
+
+  backend:
+    build: ./backend
+    command: ["server"]
+    environment:
+      <<: *backend-env
+      BIND_ADDR: 0.0.0.0:8080
+      CORS_ORIGINS: http://localhost:5173
+    ports: ["8080:8080"]
+    depends_on:
+      seed: { condition: service_completed_successfully }
+
+  frontend:
+    build: ./frontend
+    ports: ["3000:80"]
+    depends_on: [backend]
+
+volumes:
+  pgdata:
